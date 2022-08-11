@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.16;
 
-import "./voting_for_tx_1.sol";
+import "./VotingForTx.sol";
 
 /**
  * @title Voting for transaction (changeable version).
