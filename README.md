@@ -6,9 +6,9 @@ The most convenient way to compile and deploy smart contracts is to use Remix ID
 
 *All code is widely provided with documentation.*
 
-### Explanation of base contract `VotingForTx.sol`
+### Explanation of base contract
 
-It is contract that implements mechanism of both voting for transaction between set of voters and making of this transaction in case of having enough votes.
+`VotingForTx.sol` is contract that implements mechanism of both voting for transaction between set of voters and making of this transaction in case of having enough votes.
 
 **Voting mechanism**: (pre-set during construction) voters (addresses) can make a proposal of transaction and then during (pre-set during construction) strict amount of time all voters can see it and vote for it. If a voter does not like the proposal, he/she should just do nothing - vote automatically counts as "against". Then, if proposal got  enough votes (50% + 1), anyone among voters can make a transaction (but only one time!). If time passes but there was not enough votes or noone wanted to make a transaction then voting for this proposal is ended and voters can suggest a new one.
 
