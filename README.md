@@ -14,7 +14,7 @@ All transaction properties (address, name of function, data that will be sent (f
 
 **First:** In my implementation it is possible to send no more than 10 arguments with transaction and all arguments in advance must be converted into *bytes32 layout* (left- or right-padded with zero-bytes to a length of 32 bytes) as in ABI encoding of arguments in EVM. 
 
-So if we want to send *uint256* with value *127*, then it must be sent to contract for proposal as such: *0x000000000000000000000000000000000000000000000000000000000000007F*.
+So if we want to send `uint256` with value `127`, then it must be sent to contract for proposal as such: `0x000000000000000000000000000000000000000000000000000000000000007F`.
 1. 127 in decimal is 7F in hexadecimal.
 2. Integers are left-padded with zero to 32 bytes.
 
