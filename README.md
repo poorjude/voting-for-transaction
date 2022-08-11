@@ -29,5 +29,5 @@ In opposite, if we want to send `bytes3` with value `"abc"`, then it have to be 
 
 And so on but cases with dynamic types are bit harder. Look in documentation (https://docs.soliditylang.org/en/latest/abi-spec.html#examples).
 
-**Second.** Function signature must have strict, canonical form: name of the function with arguments in parentheses separated by commas and without spaces. For example, *"transfer(uint256,address)"* or *"doSmth()"*.
+**Second.** Function signature must have strict, canonical form: name of the function with arguments in parentheses separated by commas and without spaces. For example, `"transfer(uint256,address)"` or `"doSmth()"`.
 Look in documentation (https://docs.soliditylang.org/en/latest/abi-spec.html#function-selector).
