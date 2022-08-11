@@ -19,15 +19,14 @@ pragma solidity ^0.8.16;
  * 
  * NOTE: It is only possible to send no more than 10 arguments with transaction in this implementation
  * and all arguments must be converted into (!) bytes32 (!) layout (left- or right-padded with zero-bytes 
- * to a length of 32 bytes). Also, function selector must have strict, canonical form - it is hashed and
- * pruned to 4 bytes inside the contract.
+ * to a length of 32 bytes). Also, function signature must have strict, canonical form.
  * Links to documentation:
- * 1. Function selector: https://docs.soliditylang.org/en/latest/abi-spec.html#function-selector
+ * 1. Function signature: https://docs.soliditylang.org/en/latest/abi-spec.html#function-selector
  * 2. Args encoding: https://docs.soliditylang.org/en/latest/abi-spec.html#formal-specification-of-the-encoding
  */
 contract VotingForTransaction {
     event TransactionMade(address targetAddress, 
-                          string functionSelector, 
+                          string functionSignature, 
                           bytes32[] dataToSend, 
                           uint256 valueToSend, 
                           uint256 proposalTime, 
@@ -42,7 +41,7 @@ contract VotingForTransaction {
     uint256 timeForVoting;
 
     address targetAddress;
-    string functionSelector;
+    string functionSignature;
     bytes32[10] argumentsToSend;
     uint256 argumentsAmount;
     uint256 valueToSend;
@@ -99,7 +98,7 @@ contract VotingForTransaction {
      * Requirements: time for voting must not expire.
     */
     function seeCurrentProposal() external view timeNotPassed returns(address, string memory, bytes32[] memory, uint256, uint256) {
-        return (targetAddress, functionSelector, _returnCorrectArgs(), valueToSend, proposalTime);
+        return (targetAddress, functionSignature, _returnCorrectArgs(), valueToSend, proposalTime);
     }
 
     /**
@@ -131,7 +130,7 @@ contract VotingForTransaction {
      * Requirements: caller must be one of the voters and time for voting must expire.
      * 
      * @param targetAddress_ is eth address where transaction should go to.
-     * @param functionSelector_ is selector of function that will be called (must have strict,
+     * @param functionSignature_ is signature of function that will be called (must have strict,
      * canonical form - it is hashed and pruned to 4 bytes later in function {makeTransaction}).
      * Leave it as an empty string if it is only needed to send ether.
      * @param argumentsToSend_ is an array of arguments that will be sent with function
@@ -144,7 +143,7 @@ contract VotingForTransaction {
     */
     function createProposal(
                             address targetAddress_, 
-                            string calldata functionSelector_, 
+                            string calldata functionSignature_, 
                             bytes32[] calldata argumentsToSend_,
                             uint256 argumentsAmount_,
                             uint256 valueToSend_
@@ -157,11 +156,11 @@ contract VotingForTransaction {
 
         // Set properties of new transaction
         targetAddress = targetAddress_;
-        functionSelector = functionSelector_;
+        functionSignature = functionSignature_;
         valueToSend = valueToSend_;
 
         // Set data (arguments of function) if it was sent
-        if (bytes(functionSelector_).length == 0) {
+        if (bytes(functionSignature_).length == 0) {
             require(argumentsToSend_.length == 0, "Voting: You cannot send any args with empty function definition!");
         }
         require(argumentsToSend_.length == argumentsAmount_, "Voting: Submitted amount of args does not equal to real one!");
@@ -187,18 +186,18 @@ contract VotingForTransaction {
         // Making of transaction
         bool success;
         bytes memory result;
-        if (bytes(functionSelector).length == 0) {
-            // If there is no function selector (and, therefore, no arguments)
+        if (bytes(functionSignature).length == 0) {
+            // If there is no function signature (and, therefore, no arguments)
             (success, result) = targetAddress.call{value: valueToSend}("");
         } else if (argumentsAmount == 0){
-            // If there is function selector but no arguments
-            (success, result) = targetAddress.call{value: valueToSend}(abi.encodeWithSignature(functionSelector));
+            // If there is function signature but no arguments
+            (success, result) = targetAddress.call{value: valueToSend}(abi.encodeWithSignature(functionSignature));
         } else {
-            // If there is function selector and arguments
-            (success, result) = targetAddress.call{value: valueToSend}(abi.encodeWithSignature(functionSelector, _returnCorrectArgs()));
+            // If there is function signature and arguments
+            (success, result) = targetAddress.call{value: valueToSend}(abi.encodeWithSignature(functionSignature, _returnCorrectArgs()));
         }
         require(success, "Voting: Transaction failed!");
-        emit TransactionMade(targetAddress, functionSelector, _returnCorrectArgs(), valueToSend, proposalTime, result);
+        emit TransactionMade(targetAddress, functionSignature, _returnCorrectArgs(), valueToSend, proposalTime, result);
 
         // Set time of last proposal to almost zero to prevent making same multiple 
         // transactions and to instantly get ability to make new proposals
