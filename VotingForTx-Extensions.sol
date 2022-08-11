@@ -100,7 +100,7 @@ contract VotingForTransaction_ProposalMakers is VotingForTransaction {
     */
     function createProposal(
                             address targetAddress_, 
-                            string calldata functionSelector_, 
+                            string calldata functionSignature_, 
                             bytes32[] calldata argumentsToSend_,
                             uint256 argumentsAmount_,
                             uint256 valueToSend_
@@ -113,11 +113,11 @@ contract VotingForTransaction_ProposalMakers is VotingForTransaction {
 
         // Set properties of new transaction
         targetAddress = targetAddress_;
-        functionSelector = functionSelector_;
+        functionSignature = functionSignature_;
         valueToSend = valueToSend_;
 
         // Set data (arguments of function) if it was sent
-        if (bytes(functionSelector_).length == 0) {
+        if (bytes(functionSignature_).length == 0) {
             require(argumentsToSend_.length == 0, "Voting: You cannot send any args with empty function definition!");
         }
         require(argumentsToSend_.length == argumentsAmount_, "Voting: Submitted amount of args does not equal to real one!");
@@ -127,7 +127,7 @@ contract VotingForTransaction_ProposalMakers is VotingForTransaction {
             unchecked { ++i; }
         }
         argumentsAmount = argumentsAmount_;
-
+        
         // Set time of transaction proposal
         proposalTime = block.timestamp;
     }
