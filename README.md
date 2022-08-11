@@ -20,10 +20,11 @@ So if we want to send `uint256` with value `127`, then it must be sent to contra
 1. 127 in decimal is 7F in hexadecimal.
 2. Integers are left-padded with zero to 32 bytes.
 
-In opposite, if we want to send *bytes3* with value *"abc"*, then it have to be sent in such form:
-*0x6162630000000000000000000000000000000000000000000000000000000000*.
+In opposite, if we want to send `bytes3` with value `"abc"`, then it have to be sent in such form:
+`0x6162630000000000000000000000000000000000000000000000000000000000`.
 1. 'a' is encoded as 61 in hexadecimal, 'b' as 62 and 'c' as 63.
 2. Non-dynamic bytes1..31 are right-padded with zero to 32 bytes.
+
 And so on but cases with dynamic types are bit harder. Look in documentation: https://docs.soliditylang.org/en/latest/abi-spec.html#examples
 
 **Second:** Function signature must have strict, canonical form: name of the function with arguments in parentheses separated by commas and without spaces. For example, *"transfer(uint256,address)"* or *"doSmth()"*.
