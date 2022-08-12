@@ -8,7 +8,7 @@ The most convenient way to compile and deploy smart contracts is to use Remix ID
 
 *All code is widely provided with documentation.*
 
-### Explanation of base contract
+### Explanation of the base contract
 
 `VotingForTransaction` is the contract that implements mechanism of both voting for transaction between set of voters and making of this transaction in case of having enough votes.
 
@@ -16,7 +16,7 @@ The most convenient way to compile and deploy smart contracts is to use Remix ID
 
 All transaction properties (address, name of function, data that will be sent (function arguments), value) are stored inside the contract. This might require more gas but in return provide more security.
 
-### Explanation of additional contracts
+### Explanation of the additional contracts
 
 `VotingForTransaction_Changeable` is the contract that inherits `VotingForTransaction` and extends it giving ability to change time period of voting and add new voters - all of these using voting inside the same contract.
 
