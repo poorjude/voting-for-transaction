@@ -176,7 +176,7 @@ contract VotingForTransaction {
     }
 
     /**
-     * @notice Creates a proposal that will be sent on voting.
+     * @notice Makes the transaction that was sent on voting.
      * Requirements: caller must be one of the voters, time for voting (therefore,
      * making of transaction) must not expire, there must be enough votes for proposal.
     */
@@ -194,7 +194,13 @@ contract VotingForTransaction {
             (success, result) = targetAddress.call{value: valueToSend}(abi.encodeWithSignature(functionSignature));
         } else {
             // If there is function signature and arguments
-            (success, result) = targetAddress.call{value: valueToSend}(abi.encodeWithSignature(functionSignature, _returnCorrectArgs()));
+            bytes memory correctArgs;
+            uint argsLength = argumentsAmount;
+            for(uint256 i; i < argsLength;) {
+                correctArgs = bytes.concat(correctArgs, argumentsToSend[i]);
+                unchecked { ++i; }
+            }
+            (success, result) = targetAddress.call{value: valueToSend}(bytes.concat(abi.encodeWithSignature(functionSignature), correctArgs));
         }
         require(success, "Voting: Transaction failed!");
         emit TransactionMade(targetAddress, functionSignature, _returnCorrectArgs(), valueToSend, proposalTime, result);
