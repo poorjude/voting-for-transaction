@@ -24,7 +24,7 @@ All transaction properties (address, name of function, data that will be sent (f
 
 ### Technical notes 
 
-**First.** In my implementation it is possible to send no more than 10 arguments with transaction and all arguments in advance must be converted into *bytes32 layout* (left- or right-padded with zero-bytes to a length of 32 bytes) as in ABI encoding of arguments in EVM. 
+**First.** In my implementation it is possible to send no more than 10 arguments with transaction and all arguments must in advance be converted into *bytes32 layout* (left- or right-padded with zero-bytes to a length of 32 bytes) as in ABI encoding of arguments in EVM. 
 
 So if we want to send `uint256` with value `127`, then it must be sent to contract for proposal as such: `0x000000000000000000000000000000000000000000000000000000000000007F`.
 1. 127 in decimal is 7F in hexadecimal.
@@ -37,5 +37,5 @@ In opposite, if we want to send `bytes3` with value `"abc"`, then it have to be 
 
 And so on but cases with dynamic types are bit harder. Look in documentation (https://docs.soliditylang.org/en/latest/abi-spec.html#examples).
 
-**Second.** Function signature must have strict, canonical form: name of the function with arguments in parentheses separated by commas and without spaces. For example, `"transfer(uint256,address)"` or `"doSmth()"`.
+**Second.** Function signature must have strict, canonical form: name of the function with arguments in parentheses separated by commas without spaces. For example, `"transfer(uint256,address)"` or `"doSmth()"`.
 Look in documentation (https://docs.soliditylang.org/en/latest/abi-spec.html#function-selector).
