@@ -96,7 +96,7 @@ contract VotingForTransaction_ProposalMakers is VotingForTransaction {
      * 'super' keyword because then it will have `onlyForVoters` modifier and,
      * therefore, caller must be both proposal maker and voter. In such case
      * contract logic will be broken so we have to copy-paste whole function
-     * just changing modifier.
+     * just changing the modifier.
     */
     function createProposal(
                             address targetAddress_, 
