@@ -1,6 +1,8 @@
 ## On-chain voting for transaction
 
-Main file: `VotingForTx.sol`
+Main file: `VotingForTx.sol`.
+
+File with additional contracts: `VotingForTx-Extensions.sol`.
 
 The most convenient way to compile and deploy smart contracts is to use Remix IDE (https://remix.ethereum.org). Though you could use any IDE that supports Solidity.
 
@@ -8,11 +10,17 @@ The most convenient way to compile and deploy smart contracts is to use Remix ID
 
 ### Explanation of base contract
 
-`VotingForTx.sol` is contract that implements mechanism of both voting for transaction between set of voters and making of this transaction in case of having enough votes.
+`VotingForTransaction` is the contract that implements mechanism of both voting for transaction between set of voters and making of this transaction in case of having enough votes.
 
 **Voting mechanism**: pre-set voters (ETH addresses) can make a proposal of transaction and then during pre-set strict amount of time all voters can see it and vote for it. If a voter does not like the proposal, he/she should just do nothing - vote automatically counts as "against". Further, if proposal got enough votes (50% + 1), anyone among voters can make a transaction (but only one time!). If time passes but there was not enough votes or noone wanted to make a transaction then voting for this proposal is ended and voters can suggest a new one.
 
 All transaction properties (address, name of function, data that will be sent (function arguments), value) are stored inside the contract. This might require more gas but in return provide more security.
+
+### Explanation of additional contracts
+
+`VotingForTransaction_Changeable` is the contract that inherits `VotingForTransaction` and extends it giving ability to change time period of voting and add new voters - all of these using voting inside the same contract.
+
+`VotingForTransaction_ProposalMakers` is the contract that again inherits `VotingForTransaction` and changes restrictions of making proposals: now only proposal makers separated from other voters can suggest transactions for voting.
 
 ### Technical notes 
 
