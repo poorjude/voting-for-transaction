@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.16;
 
-import "./VotingForTx.sol";
+import "./voting_for_tx_1.1.sol";
 
 /**
  * @title Voting for transaction (changeable version).
@@ -27,14 +27,14 @@ contract VotingForTransaction_Changeable is VotingForTransaction {
     }
 
     /**
-     * @dev Adds new voter.
+     * @dev Adds a new voter.
      * Requirements: must be called from the same contract address.
-     * @param newVoter is address of a new voter.
+     * @param newVoter is an address of a new voter.
     */
     function addVoter(address newVoter) external votedOnly {
-        require(!isVoter[newVoter], "Voting_Changeable: This address already has voting rights!");
+        require(voterStatus[newVoter] == VoterStatus.NotVoter, "Voting_Changeable: This address already has voting rights!");
         voters.push(newVoter);
-        isVoter[newVoter] = true;
+        voterStatus[newVoter] = VoterStatus.IsVoter;
     }
 
     /**
@@ -51,7 +51,7 @@ contract VotingForTransaction_Changeable is VotingForTransaction {
 
 
 /**
- * @title Voting for transaction (version with separate proposal makers)
+ * @title Voting for transaction (version with separate proposal makers).
  * @dev This contract inherits {VotingForTransaction} and limits possibility
  * to make proposals - now only separate people (proposal makers) can do this.
  * Note that any voter can still call function {makeTransaction} if there is
@@ -101,12 +101,11 @@ contract VotingForTransaction_ProposalMakers is VotingForTransaction {
     function createProposal(
                             address targetAddress_, 
                             string calldata functionSignature_, 
-                            bytes32[] calldata argumentsToSend_,
-                            uint256 argumentsAmount_,
+                            bytes calldata dataToSend_,
                             uint256 valueToSend_
                             ) external 
                             timePassed 
-                            proposalMakersOnly 
+                            proposalMakersOnly
                             override {
         // Clearing votes for previous proposal
         _clearVotes();
@@ -118,16 +117,11 @@ contract VotingForTransaction_ProposalMakers is VotingForTransaction {
 
         // Set data (arguments of function) if it was sent
         if (bytes(functionSignature_).length == 0) {
-            require(argumentsToSend_.length == 0, "Voting: You cannot send any args with empty function definition!");
+            require(dataToSend_.length == 0, "Voting: You cannot send any args with empty function definition!");
         }
-        require(argumentsToSend_.length == argumentsAmount_, "Voting: Submitted amount of args does not equal to real one!");
-        require(argumentsAmount_ <= 10, "Voting: You cannot send more than 10 args!");
-        for (uint256 i; i < argumentsAmount_;) {
-            argumentsToSend[i] = argumentsToSend_[i];
-            unchecked { ++i; }
-        }
-        argumentsAmount = argumentsAmount_;
-        
+        require(dataToSend_.length % 32 == 0, "Voting: Wrong data (function args) encoding!");
+        dataToSend = dataToSend_;
+
         // Set time of transaction proposal
         proposalTime = block.timestamp;
     }
