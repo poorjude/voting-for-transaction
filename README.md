@@ -35,7 +35,7 @@ In opposite, if we want to send `bytes3` with value `"abc"`, then it have to be 
 1. 'a' is encoded as 61 in hexadecimal, 'b' as 62 and 'c' as 63.
 2. Non-dynamic bytes1..31 are right-padded with zero to 32 bytes.
 
-And if we need to send `127` and `"abc"` together, we need to concatenate them into one variable:
+And if we need to send `127` and `"abc"` together, we must concatenate them into one variable:
 `0x000000000000000000000000000000000000000000000000000000000000007F6162630000000000000000000000000000000000000000000000000000000000`.
 
 And so on but cases with dynamic types are bit harder. Look in documentation (https://docs.soliditylang.org/en/latest/abi-spec.html#examples).
