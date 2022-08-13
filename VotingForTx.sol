@@ -17,17 +17,22 @@ pragma solidity ^0.8.16;
  * All transaction properties (address, name of function, data that will be sent (function arguments),
  * value) are stored inside the contract. 
  * 
- * NOTE: It is only possible to send no more than 10 arguments with transaction in this implementation
- * and all arguments must be converted into (!) bytes32 (!) layout (left- or right-padded with zero-bytes 
- * to a length of 32 bytes). Also, function signature must have strict, canonical form.
+ * NOTE on {createProposal}: All arguments (data) that are sent with proposed transaction must be 
+ * converted into bytes32 (!) layout (left- or right-padded with zero-bytes to a length of 32 bytes)
+ * and concatenated (!) into the one bytes variable. Also, function signature must have strict, 
+ * canonical form.
+ * 
  * Links to documentation:
- * 1. Function signature: https://docs.soliditylang.org/en/latest/abi-spec.html#function-selector
- * 2. Args encoding: https://docs.soliditylang.org/en/latest/abi-spec.html#formal-specification-of-the-encoding
+ * 1. Args encoding: https://docs.soliditylang.org/en/latest/abi-spec.html#examples
+ * 2. Function signature: https://docs.soliditylang.org/en/latest/abi-spec.html#function-selector
  */
 contract VotingForTransaction {
+    // {VoterStatus.IsVoter} means this address is a voter and is against current proposal
+    enum VoterStatus { NotVoter, IsVoter, VotesFor }
+
     event TransactionMade(address targetAddress, 
                           string functionSignature, 
-                          bytes32[] dataToSend, 
+                          bytes dataToSend, 
                           uint256 valueToSend, 
                           uint256 proposalTime, 
                           bytes result);
@@ -35,15 +40,13 @@ contract VotingForTransaction {
     event FundsReplenished(address giver, uint256 amount);
 
     address[] voters;
-    mapping(address => bool) isVoter;
-    mapping(address => bool) isAgreed;
+    mapping(address => VoterStatus) voterStatus;
 
     uint256 timeForVoting;
 
     address targetAddress;
     string functionSignature;
-    bytes32[10] argumentsToSend;
-    uint256 argumentsAmount;
+    bytes dataToSend;
     uint256 valueToSend;
     uint256 proposalTime;
 
@@ -59,10 +62,10 @@ contract VotingForTransaction {
         for (uint256 i; i < length;) {
             currVoter = voters_[i];
             // To make sure there is no repeating addresses (this would impact on vote count)
-            if (isVoter[currVoter]) { ++i; continue; }
+            if (voterStatus[currVoter] != VoterStatus.NotVoter) { ++i; continue; }
 
             voters.push(currVoter);
-            isVoter[currVoter] = true;
+            voterStatus[currVoter] = VoterStatus.IsVoter;
             unchecked { ++i; }
         }
 
@@ -73,7 +76,7 @@ contract VotingForTransaction {
      * @dev Throws an error if caller is not a voter.
     */
     modifier onlyForVoters() {
-        require(isVoter[msg.sender], "Voting: You are not a voter!");
+        require(voterStatus[msg.sender] != VoterStatus.NotVoter, "Voting: You are not a voter!");
         _;
     }
 
@@ -97,8 +100,8 @@ contract VotingForTransaction {
      * @notice Returns properties of transaction that is currently on voting.
      * Requirements: time for voting must not expire.
     */
-    function seeCurrentProposal() external view timeNotPassed returns(address, string memory, bytes32[] memory, uint256, uint256) {
-        return (targetAddress, functionSignature, _returnCorrectArgs(), valueToSend, proposalTime);
+    function seeCurrentProposal() external view timeNotPassed returns(address, string memory, bytes memory, uint256, uint256) {
+        return (targetAddress, functionSignature, dataToSend, valueToSend, proposalTime);
     }
 
     /**
@@ -122,7 +125,7 @@ contract VotingForTransaction {
      * Requirements: caller must be one of the voters and time for voting must not expire.
     */
     function voteForProposal() external timeNotPassed onlyForVoters {
-        isAgreed[msg.sender] = true;
+        voterStatus[msg.sender] = VoterStatus.VotesFor;
     }
 
     /**
@@ -133,19 +136,17 @@ contract VotingForTransaction {
      * @param functionSignature_ is signature of function that will be called (must have strict,
      * canonical form - it is hashed and pruned to 4 bytes later in function {makeTransaction}).
      * Leave it as an empty string if it is only needed to send ether.
-     * @param argumentsToSend_ is an array of arguments that will be sent with function
-     * signature. There must be 10 or less args and all of them must be converted into 
-     * (!) bytes32 (!) layout (left- or right-padded with zero-bytes to a length of 32 bytes).
-     * Leave it as an empty array if it is not needed to send args with function.
-     * @param argumentsAmount_ is amount of args that will be sent.
+     * @param dataToSend_ is function arguments that will be sent with transaction. They must be
+     * converted into bytes32 (!) layout (left- or right-padded with zero-bytes to a length of
+     * 32 bytes) and concatenated (!) to one 'bytes' variable by yourself.
+     * Leave it as an empty 'bytes' variable if it is not needed to send args with function.
      * @param valueToSend_ is value (in wei) that will be sent. Leave it equal to zero if it is
      * not needed to send any ether.
     */
     function createProposal(
                             address targetAddress_, 
                             string calldata functionSignature_, 
-                            bytes32[] calldata argumentsToSend_,
-                            uint256 argumentsAmount_,
+                            bytes calldata dataToSend_,
                             uint256 valueToSend_
                             ) external 
                             timePassed 
@@ -161,15 +162,10 @@ contract VotingForTransaction {
 
         // Set data (arguments of function) if it was sent
         if (bytes(functionSignature_).length == 0) {
-            require(argumentsToSend_.length == 0, "Voting: You cannot send any args with empty function definition!");
+            require(dataToSend_.length == 0, "Voting: You cannot send any args with empty function definition!");
         }
-        require(argumentsToSend_.length == argumentsAmount_, "Voting: Submitted amount of args does not equal to real one!");
-        require(argumentsAmount_ <= 10, "Voting: You cannot send more than 10 args!");
-        for (uint256 i; i < argumentsAmount_;) {
-            argumentsToSend[i] = argumentsToSend_[i];
-            unchecked { ++i; }
-        }
-        argumentsAmount = argumentsAmount_;
+        require(dataToSend_.length % 32 == 0, "Voting: Wrong data (function args) encoding!");
+        dataToSend = dataToSend_;
 
         // Set time of transaction proposal
         proposalTime = block.timestamp;
@@ -189,21 +185,12 @@ contract VotingForTransaction {
         if (bytes(functionSignature).length == 0) {
             // If there is no function signature (and, therefore, no arguments)
             (success, result) = targetAddress.call{value: valueToSend}("");
-        } else if (argumentsAmount == 0){
-            // If there is function signature but no arguments
-            (success, result) = targetAddress.call{value: valueToSend}(abi.encodeWithSignature(functionSignature));
         } else {
-            // If there is function signature and arguments
-            bytes memory correctArgs;
-            uint argsLength = argumentsAmount;
-            for(uint256 i; i < argsLength;) {
-                correctArgs = bytes.concat(correctArgs, argumentsToSend[i]);
-                unchecked { ++i; }
-            }
-            (success, result) = targetAddress.call{value: valueToSend}(bytes.concat(abi.encodeWithSignature(functionSignature), correctArgs));
+            // If there is only function signature or signature and arguments both
+            (success, result) = targetAddress.call{value: valueToSend}(bytes.concat(abi.encodeWithSignature(functionSignature), dataToSend));
         }
         require(success, "Voting: Transaction failed!");
-        emit TransactionMade(targetAddress, functionSignature, _returnCorrectArgs(), valueToSend, proposalTime, result);
+        emit TransactionMade(targetAddress, functionSignature, dataToSend, valueToSend, proposalTime, result);
 
         // Set time of last proposal to almost zero to prevent making same multiple 
         // transactions and to instantly get ability to make new proposals
@@ -233,7 +220,7 @@ contract VotingForTransaction {
 
         uint256 votersAmount = voters.length;
         for (uint256 i; i < votersAmount;) {
-            if (isAgreed[voters[i]] == true) {
+            if (voterStatus[voters[i]] == VoterStatus.VotesFor) {
                 unchecked { ++agreementsAmount; }
             }
             unchecked { ++i; }
@@ -248,24 +235,10 @@ contract VotingForTransaction {
     function _clearVotes() internal {
         uint256 votersAmount = voters.length;
         for (uint256 i; i < votersAmount;) {
-            if (isAgreed[voters[i]] == true) {
-                isAgreed[voters[i]] = false;
+            if (voterStatus[voters[i]] == VoterStatus.VotesFor) {
+                voterStatus[voters[i]] = VoterStatus.IsVoter;
             }
             unchecked { ++i; }
         }
-    }
-
-    /**
-     * @dev Returns an array of arguments that may be sent with transaction.
-     * (Most of the time not all 10 places for arguments in storage will be used.)
-    */
-    function _returnCorrectArgs() internal view returns (bytes32[] memory) {
-        uint256 _argumentsAmount = argumentsAmount;
-        bytes32[] memory _correctArguments = new bytes32[](_argumentsAmount);
-        for (uint256 i; i < _argumentsAmount;) {
-            _correctArguments[i] = argumentsToSend[i];
-            unchecked { ++i; }
-        }
-        return _correctArguments;
     }
 }
