@@ -22,6 +22,14 @@ All transaction properties (address, name of function, data that will be sent (f
 
 `VotingForTransaction_ProposalMakers` is the contract that again inherits `VotingForTransaction` and changes restrictions of making proposals: now only proposal makers separated from other voters can suggest transactions for voting.
 
+### The deployed contract
+
+I deployed the contract `VotingForTransaction_Changeable` on Goerli testnet and verified its bytecode on etherscan.
+
+Etherscan: https://goerli.etherscan.io/address/0xadd042c38811afd955e35cd6eaf0031db17a992a#code
+
+Contract address: 0xADD042c38811AfD955e35CD6eaF0031dB17a992a
+
 ### Technical notes 
 
 **First.** In my implementation data that is sent with proposed transaction (function arguments) must in advance be converted into *bytes32 layout* (left- or right-padded with zero-bytes to a length of 32 bytes) and concatenated into *one bytes variable* as in ABI encoding of arguments in EVM. 
