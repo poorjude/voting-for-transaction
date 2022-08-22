@@ -32,7 +32,7 @@ Contract address: 0xADD042c38811AfD955e35CD6eaF0031dB17a992a
 
 ### Technical notes 
 
-**First.** In my implementation data that is sent with proposed transaction (function arguments) must in advance be converted into *bytes32 layout* (left- or right-padded with zero-bytes to a length of 32 bytes) and concatenated into *one bytes variable* as in ABI encoding of arguments in EVM. 
+**First.** In my implementation data that is sent with proposed transaction (function arguments) must in advance be ABI encoded: converted into *bytes32 layout* (left- or right-padded with zero-bytes to a length of 32 bytes) and concatenated into *one bytes variable*.
 
 So if we want to send `uint256` with value `127`, then it must be sent to contract for proposal as such: `0x000000000000000000000000000000000000000000000000000000000000007F`.
 1. 127 in decimal is 7F in hexadecimal.
