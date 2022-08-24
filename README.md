@@ -1,12 +1,10 @@
 ## On-chain voting for transaction
 
-Main file: `VotingForTx.sol`.
+Main file: `VotingForTx.sol` in folder `contracts`.
 
-File with additional contracts: `VotingForTx-Extensions.sol`.
+File with additional contracts: `VotingForTx-Extensions.sol` in folder `contracts`.
 
-The most convenient way to compile and deploy smart contracts is to use Remix IDE (https://remix.ethereum.org). Though you could use any IDE that supports Solidity.
-
-*All code is widely provided with documentation.*
+*All are provided with wide code documentation.*
 
 ### Explanation of the base contract
 
@@ -21,6 +19,18 @@ All transaction properties (address, name of function, data that will be sent (f
 `VotingForTransaction_Changeable` is the contract that inherits `VotingForTransaction` and extends it giving ability to change time period of voting and add new voters - all of these using voting inside the same contract.
 
 `VotingForTransaction_ProposalMakers` is the contract that again inherits `VotingForTransaction` and changes restrictions of making proposals: now only proposal makers separated from other voters can suggest transactions for voting.
+
+### Testing the contracts with Hardhat
+
+File `VotingForTx.test.js` in folder `test` contains full-coverage unit tests written in JS for all of these contracts.
+
+To run them, you need to have pre-installed Node.js with NPM and do the next things:
+
+- download all files from this page to a separate folder,
+- create new terminal and open the folder with downloaded files in it,
+- type in npm install --save-dev hardhat and wait till the end of installation,
+- type in npm install --save-dev @nomicfoundation/hardhat-toolbox and wait till the end of installation,
+- type in npx hardhat test - this will run tests for the contract.
 
 ### The deployed contract
 
@@ -47,6 +57,8 @@ And if we need to send `127` and `"abc"` together, we must concatenate them into
 `0x000000000000000000000000000000000000000000000000000000000000007F6162630000000000000000000000000000000000000000000000000000000000`.
 
 And so on but cases with dynamic types are bit harder. Look in documentation (https://docs.soliditylang.org/en/latest/abi-spec.html#examples).
+
+Of course, you do not need to do everything that is written above by your own hands. For Ethers.js the most convenient way to do this is to use ABI-coders - again, you could find all about these in their documentation (https://docs.ethers.io/v5/api/utils/abi/coder).
 
 **Second.** Function signature must have strict, canonical form: name of the function with arguments types in parentheses separated by commas without spaces. For example, `"transfer(uint256,address)"` or `"doSmth()"`.
 Look in documentation (https://docs.soliditylang.org/en/latest/abi-spec.html#function-selector).
