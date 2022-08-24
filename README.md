@@ -28,13 +28,13 @@ To run them, you need to have pre-installed Node.js with NPM and do the next thi
 
 - download all files from this page to a separate folder,
 - create new terminal and open the folder with downloaded files in it,
-- type in npm install --save-dev hardhat and wait till the end of installation,
-- type in npm install --save-dev @nomicfoundation/hardhat-toolbox and wait till the end of installation,
-- type in npx hardhat test - this will run tests for the contract.
+- type in `npm install --save-dev hardhat` and wait till the end of installation,
+- type in `npm install --save-dev @nomicfoundation/hardhat-toolbox` and wait till the end of installation,
+- type in `npx hardhat test` - this will run tests for the contract.
 
 ### The deployed contract
 
-I deployed the contract `VotingForTransaction_Changeable` on Goerli testnet and verified its bytecode on etherscan.
+I also deployed the contract `VotingForTransaction_Changeable` to Goerli testnet and verified its bytecode on etherscan, you could check it.
 
 Etherscan: https://goerli.etherscan.io/address/0xadd042c38811afd955e35cd6eaf0031db17a992a#code
 
