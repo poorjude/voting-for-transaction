@@ -1,4 +1,4 @@
-## On-chain voting for transaction
+## On-chain voting for a transaction
 
 Main file: `VotingForTx.sol` in folder `contracts`.
 
@@ -8,7 +8,7 @@ File with additional contracts: `VotingForTx-Extensions.sol` in folder `contract
 
 ### Explanation of the base contract
 
-`VotingForTransaction` is the contract that implements mechanism of both voting for transaction between set of voters and making of this transaction in case of having enough votes.
+`VotingForTransaction` is the contract that implements mechanism of both voting for a transaction between set of voters and making of this transaction in case of having enough votes.
 
 **Voting mechanism**: pre-set voters (ETH addresses) can make a proposal of transaction and then during pre-set strict amount of time all voters can see it and vote for it. If a voter does not like the proposal, he/she should just do nothing - vote automatically counts as "against". Further, if proposal got enough votes (50% + 1), anyone among voters can make a transaction (but only one time!). If time passes but there was not enough votes or noone wanted to make a transaction then voting for this proposal is ended and voters can suggest a new one.
 
@@ -42,7 +42,7 @@ Contract address: 0xADD042c38811AfD955e35CD6eaF0031dB17a992a
 
 ### Technical notes 
 
-**First.** In my implementation data that is sent with proposed transaction (function arguments) must in advance be ABI encoded: converted into *bytes32 layout* (left- or right-padded with zero-bytes to a length of 32 bytes) and concatenated into *one bytes variable*.
+**First.** In my implementation data (function arguments) that is sent with a proposed transaction must in advance be ABI encoded: converted into *bytes32 layout* (left- or right-padded with zero-bytes to a length of 32 bytes) and concatenated into *one bytes variable*.
 
 So if we want to send `uint256` with value `127`, then it must be sent to contract for proposal as such: `0x000000000000000000000000000000000000000000000000000000000000007F`.
 1. 127 in decimal is 7F in hexadecimal.
